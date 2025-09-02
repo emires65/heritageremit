@@ -53,6 +53,72 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_users: {
+        Row: {
+          created_at: string
+          id: string
+          password_hash: string
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          password_hash: string
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          password_hash?: string
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      deposits: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          id: string
+          method: string | null
+          reference_number: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          method?: string | null
+          reference_number?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          method?: string | null
+          reference_number?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       loan_applications: {
         Row: {
           amount: number
@@ -89,37 +155,73 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          read: boolean | null
+          title: string
+          type: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean | null
+          title: string
+          type?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean | null
+          title?: string
+          type?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
+          balance: number | null
           created_at: string
           date_of_birth: string | null
           first_name: string | null
           id: string
           last_name: string | null
           phone: string | null
+          role: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           address?: string | null
+          balance?: number | null
           created_at?: string
           date_of_birth?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
           phone?: string | null
+          role?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           address?: string | null
+          balance?: number | null
           created_at?: string
           date_of_birth?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
           phone?: string | null
+          role?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -164,6 +266,51 @@ export type Database = {
         }
         Relationships: []
       }
+      withdrawals: {
+        Row: {
+          account_details: Json | null
+          admin_notes: string | null
+          amount: number
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          id: string
+          method: string | null
+          reference_number: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_details?: Json | null
+          admin_notes?: string | null
+          amount: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          method?: string | null
+          reference_number?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_details?: Json | null
+          admin_notes?: string | null
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          method?: string | null
+          reference_number?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -176,6 +323,10 @@ export type Database = {
       generate_reference_number: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      update_user_balance: {
+        Args: { amount_param: number; operation: string; user_id_param: string }
+        Returns: undefined
       }
     }
     Enums: {
