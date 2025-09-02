@@ -5,11 +5,15 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Eye, EyeOff, Shield, Lock } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const defaultTab = searchParams.get('mode') === 'signup' ? 'signup' : 'login';
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -17,15 +21,111 @@ export default function Auth() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // TODO: Implement login logic
-    setTimeout(() => setIsLoading(false), 2000);
+    
+    const formData = new FormData(e.target as HTMLFormElement);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        toast({
+          title: "Login Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data.user) {
+        toast({
+          title: "Welcome back!",
+          description: "You have been successfully logged in.",
+        });
+        navigate('/');
+      }
+    } catch (error) {
+      toast({
+        title: "Login Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // TODO: Implement signup logic
-    setTimeout(() => setIsLoading(false), 2000);
+    
+    const formData = new FormData(e.target as HTMLFormElement);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+    const firstName = formData.get('firstName') as string;
+    const lastName = formData.get('lastName') as string;
+    const phone = formData.get('phone') as string;
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+            phone: phone,
+          }
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Registration Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data.user) {
+        // Create user profile
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            user_id: data.user.id,
+            first_name: firstName,
+            last_name: lastName,
+            phone: phone,
+            role: 'user'
+          });
+
+        if (profileError) {
+          console.error('Profile creation error:', profileError);
+        }
+
+        toast({
+          title: "Account Created Successfully!",
+          description: "Please check your email to verify your account.",
+        });
+        
+        // Redirect to login tab
+        navigate('/auth?mode=login');
+      }
+    } catch (error) {
+      toast({
+        title: "Registration Error", 
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -77,6 +177,7 @@ export default function Auth() {
                     <Label htmlFor="login-email">Email Address</Label>
                     <Input
                       id="login-email"
+                      name="email"
                       type="email"
                       placeholder="Enter your email"
                       required
@@ -88,6 +189,7 @@ export default function Auth() {
                     <div className="relative">
                       <Input
                         id="login-password"
+                        name="password"
                         type={showPassword ? "text" : "password"}
                         placeholder="Enter your password"
                         required
@@ -127,6 +229,7 @@ export default function Auth() {
                       <Label htmlFor="first-name">First Name</Label>
                       <Input
                         id="first-name"
+                        name="firstName"
                         placeholder="John"
                         required
                       />
@@ -135,6 +238,7 @@ export default function Auth() {
                       <Label htmlFor="last-name">Last Name</Label>
                       <Input
                         id="last-name"
+                        name="lastName"
                         placeholder="Doe"
                         required
                       />
@@ -145,6 +249,7 @@ export default function Auth() {
                     <Label htmlFor="signup-email">Email Address</Label>
                     <Input
                       id="signup-email"
+                      name="email"
                       type="email"
                       placeholder="john.doe@example.com"
                       required
@@ -155,6 +260,7 @@ export default function Auth() {
                     <Label htmlFor="phone">Phone Number</Label>
                     <Input
                       id="phone"
+                      name="phone"
                       type="tel"
                       placeholder="+1 (555) 123-4567"
                       required
@@ -166,6 +272,7 @@ export default function Auth() {
                     <div className="relative">
                       <Input
                         id="signup-password"
+                        name="password"
                         type={showPassword ? "text" : "password"}
                         placeholder="Create a secure password"
                         required
