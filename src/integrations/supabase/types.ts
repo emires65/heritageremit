@@ -187,6 +187,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_number: string | null
           address: string | null
           balance: number | null
           created_at: string
@@ -195,11 +196,13 @@ export type Database = {
           id: string
           last_name: string | null
           phone: string | null
+          pin_hash: string | null
           role: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          account_number?: string | null
           address?: string | null
           balance?: number | null
           created_at?: string
@@ -208,11 +211,13 @@ export type Database = {
           id?: string
           last_name?: string | null
           phone?: string | null
+          pin_hash?: string | null
           role?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          account_number?: string | null
           address?: string | null
           balance?: number | null
           created_at?: string
@@ -221,6 +226,7 @@ export type Database = {
           id?: string
           last_name?: string | null
           phone?: string | null
+          pin_hash?: string | null
           role?: string | null
           updated_at?: string
           user_id?: string

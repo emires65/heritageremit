@@ -68,8 +68,8 @@ export function TransactionHistoryDialog({ open, onOpenChange, userId }: Transac
         ...(withdrawals || []).map(w => ({
           ...w,
           type: 'withdrawal' as const,
-          description: `${w.account_details?.transferType === 'international' ? 'International' : 'Local'} Transfer to ${w.account_details?.recipientName || 'Recipient'}`,
-          recipient_name: w.account_details?.recipientName
+          description: `${(w.account_details as any)?.transferType === 'international' ? 'International' : 'Local'} Transfer to ${(w.account_details as any)?.recipientName || 'Recipient'}`,
+          recipient_name: (w.account_details as any)?.recipientName
         }))
       ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 

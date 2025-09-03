@@ -44,7 +44,7 @@ export function PinVerification({ userId, onVerified, onCancel, loading }: PinVe
       // Verify PIN (in a real app, this should be done server-side with proper hashing)
       const hashedInput = btoa(pin);
       
-      if (hashedInput === profile.pin_hash) {
+      if (hashedInput === (profile as any)?.pin_hash) {
         toast({
           title: "PIN Verified",
           description: "Processing your transaction...",

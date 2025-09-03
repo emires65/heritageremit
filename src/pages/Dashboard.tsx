@@ -58,7 +58,7 @@ export default function Dashboard() {
       } else {
         setProfile(profileData);
         // Check if user needs to set up PIN
-        if (!profileData.pin_hash) {
+        if (!(profileData as any).pin_hash) {
           setPinSetupOpen(true);
         }
       }

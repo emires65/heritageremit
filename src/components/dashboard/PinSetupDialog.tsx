@@ -58,7 +58,7 @@ export function PinSetupDialog({ open, onOpenChange, userId, onPinSet }: PinSetu
       
       const { error } = await supabase
         .from('profiles')
-        .update({ pin_hash: hashedPin })
+        .update({ pin_hash: hashedPin } as any)
         .eq('user_id', userId);
 
       if (error) throw error;
