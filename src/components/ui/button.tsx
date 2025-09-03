@@ -22,6 +22,7 @@ const buttonVariants = cva(
         hero: "bg-gradient-gold text-primary font-semibold shadow-gold hover:shadow-premium hover:scale-105 transform transition-all duration-300",
         "outline-hero": "border-2 border-white/30 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 hover:border-white/50 font-semibold",
         banking: "bg-gradient-primary text-white font-semibold shadow-elegant hover:shadow-premium hover:bg-primary-hover",
+        heritage: "bg-gradient-heritage text-white font-semibold shadow-elegant hover:shadow-premium hover:scale-105 transform transition-all duration-300",
         premium: "bg-gradient-card border border-accent/20 text-primary font-semibold shadow-card hover:shadow-elegant hover:scale-105 transform transition-all duration-300",
       },
       size: {

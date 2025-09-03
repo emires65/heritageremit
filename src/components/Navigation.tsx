@@ -1,12 +1,21 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, User, LogOut } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const isAuthenticated = false; // TODO: Replace with actual auth state
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  const isAuthenticated = !!user;
 
   const navItems = [
     { name: "Home", href: "/" },
@@ -28,7 +37,7 @@ export const Navigation = () => {
             <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-xl">H</span>
             </div>
-            <span className="text-xl font-bold text-primary">Heritage Bank</span>
+            <span className="text-xl font-bold text-primary">Heritage Remit Bank</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -52,11 +61,13 @@ export const Navigation = () => {
           <div className="hidden lg:flex items-center space-x-4">
             {isAuthenticated ? (
               <>
-                <Button variant="ghost" size="sm">
-                  <User className="h-4 w-4 mr-2" />
-                  Dashboard
-                </Button>
-                <Button variant="outline" size="sm">
+                <Link to="/dashboard">
+                  <Button variant="ghost" size="sm">
+                    <User className="h-4 w-4 mr-2" />
+                    Dashboard
+                  </Button>
+                </Link>
+                <Button variant="outline" size="sm" onClick={handleSignOut}>
                   <LogOut className="h-4 w-4 mr-2" />
                   Logout
                 </Button>
@@ -67,7 +78,7 @@ export const Navigation = () => {
                   <Button variant="ghost" size="sm">Login</Button>
                 </Link>
                 <Link to="/auth?mode=signup">
-                  <Button variant="banking" size="sm">Open Account</Button>
+                  <Button variant="heritage" size="sm">Open Account</Button>
                 </Link>
               </>
             )}
@@ -105,11 +116,13 @@ export const Navigation = () => {
               <div className="pt-4 space-y-2 border-t border-border">
                 {isAuthenticated ? (
                   <>
-                    <Button variant="ghost" className="w-full justify-start">
-                      <User className="h-4 w-4 mr-2" />
-                      Dashboard
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start">
+                    <Link to="/dashboard" onClick={() => setIsOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start">
+                        <User className="h-4 w-4 mr-2" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                    <Button variant="outline" className="w-full justify-start" onClick={handleSignOut}>
                       <LogOut className="h-4 w-4 mr-2" />
                       Logout
                     </Button>
@@ -122,7 +135,7 @@ export const Navigation = () => {
                       </Button>
                     </Link>
                     <Link to="/auth?mode=signup" className="block">
-                      <Button variant="banking" className="w-full justify-start">
+                      <Button variant="heritage" className="w-full justify-start">
                         Open Account
                       </Button>
                     </Link>

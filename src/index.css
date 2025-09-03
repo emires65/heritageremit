@@ -32,11 +32,17 @@
     --muted: 210 15% 96%;
     --muted-foreground: 210 10% 45%;
 
-    /* Heritage Gold - Premium Accent */
-    --accent: 45 85% 55%;
-    --accent-foreground: 210 100% 8%;
-    --accent-light: 45 85% 75%;
-    --accent-dark: 45 85% 35%;
+    /* Heritage Orange - Primary Accent (matching Heritage site) */
+    --accent: 22 85% 55%;
+    --accent-foreground: 0 0% 100%;
+    --accent-light: 22 85% 75%;
+    --accent-dark: 22 85% 35%;
+
+    /* Heritage Gold - Secondary Accent */
+    --heritage-gold: 45 85% 55%;
+    --heritage-gold-foreground: 210 100% 8%;
+    --heritage-gold-light: 45 85% 75%;
+    --heritage-gold-dark: 45 85% 35%;
 
     /* Status colors */
     --destructive: 0 84% 60%;
@@ -51,8 +57,9 @@
     --input: 210 20% 95%;
     --ring: 210 100% 12%;
 
-    /* Premium gradients */
+    /* Premium gradients with Heritage Orange */
     --gradient-primary: linear-gradient(135deg, hsl(210 100% 12%), hsl(210 100% 25%));
+    --gradient-heritage: linear-gradient(135deg, hsl(22 85% 35%), hsl(22 85% 55%));
     --gradient-gold: linear-gradient(135deg, hsl(45 85% 35%), hsl(45 85% 55%));
     --gradient-hero: linear-gradient(135deg, hsl(210 100% 8%), hsl(210 100% 15%), hsl(210 80% 25%));
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(210 15% 98%));
@@ -98,9 +105,9 @@
     --popover: 210 100% 6%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 45 85% 55%;
-    --primary-foreground: 210 100% 8%;
-    --primary-hover: 45 85% 65%;
+    --primary: 22 85% 55%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 22 85% 65%;
 
     --secondary: 210 50% 12%;
     --secondary-foreground: 0 0% 98%;
@@ -108,30 +115,31 @@
     --muted: 210 50% 8%;
     --muted-foreground: 210 20% 65%;
 
-    --accent: 45 85% 55%;
-    --accent-foreground: 210 100% 8%;
+    --accent: 22 85% 55%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 210 50% 15%;
     --input: 210 50% 12%;
-    --ring: 45 85% 55%;
+    --ring: 22 85% 55%;
 
-    /* Dark mode gradients */
+    /* Dark mode gradients with Heritage Orange */
     --gradient-primary: linear-gradient(135deg, hsl(210 100% 6%), hsl(210 80% 15%));
+    --gradient-heritage: linear-gradient(135deg, hsl(22 85% 45%), hsl(22 85% 65%));
     --gradient-gold: linear-gradient(135deg, hsl(45 85% 45%), hsl(45 85% 65%));
     --gradient-hero: linear-gradient(135deg, hsl(210 100% 4%), hsl(210 100% 8%), hsl(210 60% 20%));
     --gradient-card: linear-gradient(145deg, hsl(210 100% 6%), hsl(210 80% 8%));
 
     --sidebar-background: 210 100% 4%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 45 85% 55%;
-    --sidebar-primary-foreground: 210 100% 8%;
+    --sidebar-primary: 22 85% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 210 50% 8%;
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 210 50% 12%;
-    --sidebar-ring: 45 85% 55%;
+    --sidebar-ring: 22 85% 55%;
   }
 }
 
