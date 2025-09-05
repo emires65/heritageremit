@@ -198,6 +198,7 @@ export type Database = {
           phone: string | null
           pin_hash: string | null
           role: string | null
+          status: string
           updated_at: string
           user_id: string
         }
@@ -213,6 +214,7 @@ export type Database = {
           phone?: string | null
           pin_hash?: string | null
           role?: string | null
+          status?: string
           updated_at?: string
           user_id: string
         }
@@ -228,6 +230,7 @@ export type Database = {
           phone?: string | null
           pin_hash?: string | null
           role?: string | null
+          status?: string
           updated_at?: string
           user_id?: string
         }
@@ -322,6 +325,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      fund_user_account: {
+        Args: { amount: number; target_user_id: string }
+        Returns: undefined
+      }
       generate_account_number: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -329,6 +336,10 @@ export type Database = {
       generate_reference_number: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      toggle_user_status: {
+        Args: { new_status: string; target_user_id: string }
+        Returns: undefined
       }
       update_user_balance: {
         Args: { amount_param: number; operation: string; user_id_param: string }

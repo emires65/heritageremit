@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Eye, UserCheck, UserX, Search } from "lucide-react";
+import { DollarSign, UserCheck, UserX, Search, Ban, CheckCircle } from "lucide-react";
 
 interface Profile {
   id: string;
@@ -23,6 +23,7 @@ interface Profile {
   phone: string;
   account_number: string;
   role: string;
+  status: string;
   created_at: string;
 }
 
@@ -57,26 +58,51 @@ export function AdminUsersTable() {
     }
   };
 
-  const updateUserBalance = async (userId: string, newBalance: number) => {
+  const fundUserAccount = async (userId: string, amount: number) => {
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ balance: newBalance })
-        .eq('user_id', userId);
+      const { error } = await supabase.rpc('fund_user_account', {
+        target_user_id: userId,
+        amount: amount
+      });
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "User balance updated successfully.",
+        description: `Account funded with $${amount.toFixed(2)} successfully.`,
       });
       
       fetchProfiles();
     } catch (error) {
-      console.error('Error updating balance:', error);
+      console.error('Error funding account:', error);
       toast({
         title: "Error",
-        description: "Failed to update user balance.",
+        description: "Failed to fund user account.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const toggleUserStatus = async (userId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase.rpc('toggle_user_status', {
+        target_user_id: userId,
+        new_status: newStatus
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `User ${newStatus === 'blocked' ? 'blocked' : 'unblocked'} successfully.`,
+      });
+      
+      fetchProfiles();
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update user status.",
         variant: "destructive",
       });
     }
@@ -112,6 +138,7 @@ export function AdminUsersTable() {
               <TableHead>Account Number</TableHead>
               <TableHead>Phone</TableHead>
               <TableHead>Balance</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Created</TableHead>
               <TableHead>Actions</TableHead>
@@ -131,6 +158,11 @@ export function AdminUsersTable() {
                   ${(profile.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </TableCell>
                 <TableCell>
+                  <Badge variant={profile.status === 'blocked' ? 'destructive' : 'default'}>
+                    {profile.status === 'blocked' ? 'Blocked' : 'Active'}
+                  </Badge>
+                </TableCell>
+                <TableCell>
                   <Badge variant={profile.role === 'admin' ? 'default' : 'secondary'}>
                     {profile.role || 'user'}
                   </Badge>
@@ -144,13 +176,32 @@ export function AdminUsersTable() {
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        const newBalance = prompt('Enter new balance:', profile.balance?.toString() || '0');
-                        if (newBalance && !isNaN(Number(newBalance))) {
-                          updateUserBalance(profile.user_id, Number(newBalance));
+                        const amount = prompt('Enter amount to fund account:');
+                        if (amount && !isNaN(Number(amount)) && Number(amount) > 0) {
+                          fundUserAccount(profile.user_id, Number(amount));
                         }
                       }}
+                      title="Fund Account"
                     >
-                      <Eye className="h-4 w-4" />
+                      <DollarSign className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant={profile.status === 'blocked' ? 'default' : 'destructive'}
+                      size="sm"
+                      onClick={() => {
+                        const newStatus = profile.status === 'blocked' ? 'active' : 'blocked';
+                        const action = newStatus === 'blocked' ? 'block' : 'unblock';
+                        if (confirm(`Are you sure you want to ${action} this user?`)) {
+                          toggleUserStatus(profile.user_id, newStatus);
+                        }
+                      }}
+                      title={profile.status === 'blocked' ? 'Unblock User' : 'Block User'}
+                    >
+                      {profile.status === 'blocked' ? (
+                        <CheckCircle className="h-4 w-4" />
+                      ) : (
+                        <Ban className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 </TableCell>

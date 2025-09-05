@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Building, Globe, Shield } from "lucide-react";
+import { ArrowLeft, Building, Globe, Shield, Ban } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { PinVerification } from "./PinVerification";
@@ -25,7 +25,34 @@ export function WithdrawMoneyDialog({ open, onOpenChange, userBalance, userId }:
   const [transferType, setTransferType] = useState<TransferType>(null);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<any>({});
+  const [userStatus, setUserStatus] = useState<string>('active');
+  const [checkingStatus, setCheckingStatus] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (open && userId) {
+      checkUserStatus();
+    }
+  }, [open, userId]);
+
+  const checkUserStatus = async () => {
+    setCheckingStatus(true);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('status')
+        .eq('user_id', userId)
+        .single();
+
+      if (error) throw error;
+      setUserStatus(data?.status || 'active');
+    } catch (error) {
+      console.error('Error checking user status:', error);
+      setUserStatus('active'); // Default to active on error
+    } finally {
+      setCheckingStatus(false);
+    }
+  };
 
   const handleReset = () => {
     setStep('select');
@@ -393,6 +420,30 @@ export function WithdrawMoneyDialog({ open, onOpenChange, userBalance, userId }:
     </div>
   );
 
+  const renderBlockedUser = () => (
+    <div className="space-y-4 text-center">
+      <div className="flex flex-col items-center space-y-4">
+        <div className="p-4 bg-destructive/10 rounded-full">
+          <Ban className="h-8 w-8 text-destructive" />
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-destructive mb-2">Account Restricted</h3>
+          <p className="text-muted-foreground text-sm">
+            Your account has been temporarily restricted from making transfers. 
+            Please contact customer support for assistance.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => onOpenChange(false)}
+          className="w-full"
+        >
+          Close
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
@@ -400,10 +451,22 @@ export function WithdrawMoneyDialog({ open, onOpenChange, userBalance, userId }:
           <DialogTitle>Withdraw Money</DialogTitle>
         </DialogHeader>
 
-        {step === 'select' && renderSelectType()}
-        {step === 'form' && transferType === 'local' && renderLocalForm()}
-        {step === 'form' && transferType === 'international' && renderInternationalForm()}
-        {step === 'pin' && renderPinVerification()}
+        {checkingStatus && (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">Checking account status...</p>
+          </div>
+        )}
+
+        {!checkingStatus && userStatus === 'blocked' && renderBlockedUser()}
+        
+        {!checkingStatus && userStatus === 'active' && (
+          <>
+            {step === 'select' && renderSelectType()}
+            {step === 'form' && transferType === 'local' && renderLocalForm()}
+            {step === 'form' && transferType === 'international' && renderInternationalForm()}
+            {step === 'pin' && renderPinVerification()}
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );
