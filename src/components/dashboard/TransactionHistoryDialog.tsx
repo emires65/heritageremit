@@ -3,14 +3,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowUpRight, ArrowDownLeft, Clock, CheckCircle, XCircle } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, Clock, CheckCircle, XCircle, Receipt } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { TransactionReceiptDialog } from "./TransactionReceiptDialog";
 
 interface TransactionHistoryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   userId: string;
+  userProfile: any;
 }
 
 interface Transaction {
@@ -25,9 +27,11 @@ interface Transaction {
   recipient_name?: string;
 }
 
-export function TransactionHistoryDialog({ open, onOpenChange, userId }: TransactionHistoryDialogProps) {
+export function TransactionHistoryDialog({ open, onOpenChange, userId, userProfile }: TransactionHistoryDialogProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [receiptDialogOpen, setReceiptDialogOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -119,11 +123,20 @@ export function TransactionHistoryDialog({ open, onOpenChange, userId }: Transac
     return transactions.filter(t => t.type === type);
   };
 
+  const handleTransactionClick = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setReceiptDialogOpen(true);
+  };
+
   const renderTransaction = (transaction: Transaction) => {
     const isCredit = transaction.type === 'deposit';
     
     return (
-      <Card key={transaction.id} className="banking-card">
+      <Card 
+        key={transaction.id} 
+        className="banking-card hover:shadow-md transition-shadow cursor-pointer"
+        onClick={() => handleTransactionClick(transaction)}
+      >
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -153,13 +166,16 @@ export function TransactionHistoryDialog({ open, onOpenChange, userId }: Transac
               </div>
             </div>
             
-            <div className="text-right">
-              <div className={`font-semibold ${isCredit ? 'text-success' : 'text-destructive'}`}>
-                {isCredit ? '+' : '-'}${transaction.amount.toFixed(2)}
+            <div className="text-right flex items-center space-x-3">
+              <div>
+                <div className={`font-semibold ${isCredit ? 'text-success' : 'text-destructive'}`}>
+                  {isCredit ? '+' : '-'}${transaction.amount.toFixed(2)}
+                </div>
+                <div className="mt-1">
+                  {getStatusBadge(transaction.status)}
+                </div>
               </div>
-              <div className="mt-1">
-                {getStatusBadge(transaction.status)}
-              </div>
+              <Receipt className="h-4 w-4 text-muted-foreground" />
             </div>
           </div>
         </CardContent>
@@ -226,6 +242,14 @@ export function TransactionHistoryDialog({ open, onOpenChange, userId }: Transac
             </>
           )}
         </Tabs>
+
+        {/* Receipt Dialog */}
+        <TransactionReceiptDialog
+          open={receiptDialogOpen}
+          onOpenChange={setReceiptDialogOpen}
+          transaction={selectedTransaction}
+          userProfile={userProfile}
+        />
       </DialogContent>
     </Dialog>
   );

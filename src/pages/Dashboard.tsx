@@ -278,6 +278,7 @@ export default function Dashboard() {
         open={historyDialogOpen} 
         onOpenChange={setHistoryDialogOpen}
         userId={user?.id || ''}
+        userProfile={profile}
       />
       
       <ProfileDialog 

@@ -1,8 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Shield, TrendingUp, Globe, Smartphone } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import bankingHero from "@/assets/banking-hero.jpg";
 
 export const HeroBanner = () => {
+  const { user } = useAuth();
+  const isAuthenticated = !!user;
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}
@@ -59,14 +64,18 @@ export const HeroBanner = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center animate-scale-in">
-            <Button variant="hero" size="lg" className="group">
-              Open an Account
-              <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-            </Button>
-            <Button variant="outline-hero" size="lg" className="group">
-              Login to Online Banking
-              <Smartphone className="ml-2 h-5 w-5" />
-            </Button>
+            <Link to="/auth?mode=signup">
+              <Button variant="hero" size="lg" className="group">
+                Open an Account
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </Link>
+            <Link to={isAuthenticated ? "/dashboard" : "/auth"}>
+              <Button variant="outline-hero" size="lg" className="group">
+                VIEW ACCOUNT
+                <Smartphone className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
           </div>
 
           {/* Key Features */}

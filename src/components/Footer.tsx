@@ -79,15 +79,15 @@ export const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-accent" />
-                <span className="text-white/80">1-800-HERITAGE</span>
+                <span className="text-white/80">+1 (815) 600-8181</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-accent" />
-                <span className="text-white/80">support@heritagebank.com</span>
+                <span className="text-white/80">support@heritageremitbank.shop</span>
               </div>
               <div className="flex items-center space-x-3">
                 <MapPin className="h-5 w-5 text-accent" />
-                <span className="text-white/80">1000 Heritage Plaza, Financial District</span>
+                <span className="text-white/80">100 Broadway, Cincinnati, OH 45202, United States</span>
               </div>
             </div>
           </div>

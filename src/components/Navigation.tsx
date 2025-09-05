@@ -77,8 +77,8 @@ export const Navigation = () => {
                 <Link to="/auth">
                   <Button variant="ghost" size="sm">Login</Button>
                 </Link>
-                <Link to="/auth?mode=signup">
-                  <Button variant="heritage" size="sm">Open Account</Button>
+                <Link to={isAuthenticated ? "/dashboard" : "/auth"}>
+                  <Button variant="heritage" size="sm">VIEW ACCOUNT</Button>
                 </Link>
               </>
             )}
@@ -134,9 +134,9 @@ export const Navigation = () => {
                         Login
                       </Button>
                     </Link>
-                    <Link to="/auth?mode=signup" className="block">
+                    <Link to={isAuthenticated ? "/dashboard" : "/auth"} className="block">
                       <Button variant="heritage" className="w-full justify-start">
-                        Open Account
+                        VIEW ACCOUNT
                       </Button>
                     </Link>
                   </>
