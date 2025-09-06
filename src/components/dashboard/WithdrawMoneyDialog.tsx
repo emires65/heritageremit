@@ -101,32 +101,44 @@ export function WithdrawMoneyDialog({ open, onOpenChange, userBalance, userId }:
     setLoading(true);
     
     try {
-      // Create withdrawal request
-      const { error } = await supabase
-        .from('withdrawals')
+      // Update user balance immediately
+      const { error: balanceError } = await supabase.rpc('update_user_balance', {
+        user_id_param: userId,
+        amount_param: formData.amount,
+        operation: 'subtract'
+      });
+
+      if (balanceError) throw balanceError;
+
+      // Create completed transaction record
+      const referenceNumber = `TXN${Date.now()}${Math.floor(Math.random() * 1000)}`;
+      
+      const { error: transactionError } = await supabase
+        .from('transactions')
         .insert({
-          user_id: userId,
+          account_id: userId, // Using userId as placeholder since we're using profiles table
+          transaction_type: 'withdrawal',
           amount: formData.amount,
-          method: transferType,
-          account_details: {
-            ...formData,
-            transferType
-          }
+          description: `${transferType === 'local' ? 'Local' : 'International'} transfer to ${formData.recipientName}`,
+          reference_number: referenceNumber,
+          recipient_account: formData.accountNumber || formData.iban,
+          recipient_name: formData.recipientName,
+          status: 'completed'
         });
 
-      if (error) throw error;
+      if (transactionError) throw transactionError;
 
       toast({
-        title: "Withdrawal Request Submitted",
-        description: "Your withdrawal request has been submitted for processing. You will be notified once it's approved.",
+        title: "Transfer Completed Successfully!",
+        description: `Your ${transferType} transfer of $${formData.amount.toFixed(2)} has been completed instantly.`,
       });
 
       onOpenChange(false);
       handleReset();
     } catch (error: any) {
       toast({
-        title: "Withdrawal Error",
-        description: error.message || "Failed to submit withdrawal request.",
+        title: "Transfer Error",
+        description: error.message || "Failed to complete transfer.",
         variant: "destructive",
       });
     } finally {

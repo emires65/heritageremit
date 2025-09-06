@@ -42,6 +42,44 @@ export default function Auth() {
       }
 
       if (data.user) {
+        // Check user status
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('status, account_status')
+          .eq('user_id', data.user.id)
+          .single();
+
+        if (profileError) {
+          toast({
+            title: "Login Error",
+            description: "Failed to verify account status.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Check if user is blocked
+        if (profile?.status === 'blocked') {
+          await supabase.auth.signOut();
+          toast({
+            title: "Account Banned",
+            description: "This account has been banned due to company policy violations. Please contact customer care or email us at support@heritageremit.site",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Check if account is inactive
+        if (profile?.account_status === 'inactive') {
+          await supabase.auth.signOut();
+          toast({
+            title: "Account Pending Activation",
+            description: "Your account is pending admin approval. You will be notified once your account is activated.",
+            variant: "destructive",
+          });
+          return;
+        }
+
         toast({
           title: "Welcome back!",
           description: "You have been successfully logged in.",
@@ -71,11 +109,11 @@ export default function Auth() {
     const phone = formData.get('phone') as string;
 
     try {
+      // Skip email verification by not setting emailRedirectTo
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
           data: {
             first_name: firstName,
             last_name: lastName,
@@ -94,7 +132,7 @@ export default function Auth() {
       }
 
       if (data.user) {
-        // Create user profile
+        // Create user profile with inactive status
         const { error: profileError } = await supabase
           .from('profiles')
           .insert({
@@ -102,16 +140,20 @@ export default function Auth() {
             first_name: firstName,
             last_name: lastName,
             phone: phone,
-            role: 'user'
+            role: 'user',
+            account_status: 'inactive'
           });
 
         if (profileError) {
           console.error('Profile creation error:', profileError);
         }
 
+        // Sign out the user immediately since account needs activation
+        await supabase.auth.signOut();
+
         toast({
           title: "Account Created Successfully!",
-          description: "Please check your email to verify your account.",
+          description: "Your account has been created and is pending admin approval. You will be notified once your account is activated.",
         });
         
         // Redirect to login tab
@@ -325,7 +367,7 @@ export default function Auth() {
 
         {/* Additional Info */}
         <div className="mt-6 text-center text-white/80 text-sm">
-          <p>Need help? Call us at <span className="text-accent">1-800-HERITAGE</span></p>
+          <p>Need help? Call us at <span className="text-accent">+1 (815) 600-8181</span></p>
           <p className="mt-1">Available 24/7 for premium banking support</p>
         </div>
       </div>

@@ -22,10 +22,14 @@ import { AdminWithdrawalsTable } from "@/components/admin/AdminWithdrawalsTable"
 import { AdminLoanApplicationsTable } from "@/components/admin/AdminLoanApplicationsTable";
 import { AdminStatsCards } from "@/components/admin/AdminStatsCards";
 
+import { AdminAccountActivationTable } from "@/components/admin/AdminAccountActivationTable";
+import { AdminManualTransactionDialog } from "@/components/admin/AdminManualTransactionDialog";
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
+  const [manualTransactionOpen, setManualTransactionOpen] = useState(false);
 
   useEffect(() => {
     // Check if admin is logged in
@@ -100,14 +104,27 @@ export default function AdminDashboard() {
         {/* Management Tabs */}
         <Card className="banking-card mt-8">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <FileText className="h-5 w-5" />
-              <span>System Management</span>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <FileText className="h-5 w-5" />
+                <span>System Management</span>
+              </div>
+              <Button
+                onClick={() => setManualTransactionOpen(true)}
+                variant="banking"
+                size="sm"
+              >
+                Add Manual Transaction
+              </Button>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="users" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
+            <Tabs defaultValue="activation" className="w-full">
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="activation" className="flex items-center space-x-2">
+                  <UserCheck className="h-4 w-4" />
+                  <span>Activation</span>
+                </TabsTrigger>
                 <TabsTrigger value="users" className="flex items-center space-x-2">
                   <Users className="h-4 w-4" />
                   <span>Users</span>
@@ -125,6 +142,10 @@ export default function AdminDashboard() {
                   <span>Loans</span>
                 </TabsTrigger>
               </TabsList>
+
+              <TabsContent value="activation" className="mt-6">
+                <AdminAccountActivationTable />
+              </TabsContent>
 
               <TabsContent value="users" className="mt-6">
                 <AdminUsersTable />
@@ -144,6 +165,11 @@ export default function AdminDashboard() {
             </Tabs>
           </CardContent>
         </Card>
+
+        <AdminManualTransactionDialog
+          open={manualTransactionOpen}
+          onOpenChange={setManualTransactionOpen}
+        />
       </main>
     </div>
   );

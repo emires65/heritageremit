@@ -83,7 +83,7 @@ export const Footer = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-accent" />
-                <span className="text-white/80">support@heritageremitbank.shop</span>
+                <span className="text-white/80">support@heritageremit.site</span>
               </div>
               <div className="flex items-center space-x-3">
                 <MapPin className="h-5 w-5 text-accent" />

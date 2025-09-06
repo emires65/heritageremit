@@ -59,7 +59,7 @@ const Contact = () => {
       icon: Mail,
       title: "Email Support", 
       description: "Send us a message and we'll respond quickly",
-      details: ["support@heritagebank.com", "Response within 2 hours"],
+      details: ["support@heritageremit.site", "Response within 2 hours"],
       action: "Send Email"
     },
     {

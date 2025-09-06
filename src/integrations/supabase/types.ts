@@ -188,6 +188,7 @@ export type Database = {
       profiles: {
         Row: {
           account_number: string | null
+          account_status: string | null
           address: string | null
           balance: number | null
           created_at: string
@@ -204,6 +205,7 @@ export type Database = {
         }
         Insert: {
           account_number?: string | null
+          account_status?: string | null
           address?: string | null
           balance?: number | null
           created_at?: string
@@ -220,6 +222,7 @@ export type Database = {
         }
         Update: {
           account_number?: string | null
+          account_status?: string | null
           address?: string | null
           balance?: number | null
           created_at?: string
@@ -325,6 +328,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      activate_user_account: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
+      add_manual_transaction: {
+        Args: {
+          target_user_id: string
+          transaction_amount: number
+          transaction_description: string
+          transaction_type?: string
+        }
+        Returns: undefined
+      }
       fund_user_account: {
         Args: { amount: number; target_user_id: string }
         Returns: undefined
