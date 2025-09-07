@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 interface AdminManualTransactionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onTransactionAdded?: () => void;
 }
 
 interface User {
@@ -20,7 +21,7 @@ interface User {
   account_number: string;
 }
 
-export function AdminManualTransactionDialog({ open, onOpenChange }: AdminManualTransactionDialogProps) {
+export function AdminManualTransactionDialog({ open, onOpenChange, onTransactionAdded }: AdminManualTransactionDialogProps) {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
@@ -99,6 +100,11 @@ export function AdminManualTransactionDialog({ open, onOpenChange }: AdminManual
       setDescription("");
       setTransactionType("credit");
       onOpenChange(false);
+
+      // Optional: Call a callback to refresh admin dashboard if provided
+      if (onTransactionAdded) {
+        onTransactionAdded();
+      }
     } catch (error: any) {
       toast({
         title: "Transaction Error",

@@ -40,6 +40,68 @@ export function TransactionHistoryDialog({ open, onOpenChange, userId, userProfi
     }
   }, [open, userId]);
 
+  // Set up real-time subscriptions for transaction updates
+  useEffect(() => {
+    if (!open || !userId) return;
+
+    // Subscribe to deposits changes
+    const depositsChannel = supabase
+      .channel('deposits-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'deposits',
+          filter: `user_id=eq.${userId}`
+        },
+        () => {
+          fetchTransactions();
+        }
+      )
+      .subscribe();
+
+    // Subscribe to withdrawals changes
+    const withdrawalsChannel = supabase
+      .channel('withdrawals-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'withdrawals',
+          filter: `user_id=eq.${userId}`
+        },
+        () => {
+          fetchTransactions();
+        }
+      )
+      .subscribe();
+
+    // Subscribe to transactions changes
+    const transactionsChannel = supabase
+      .channel('transactions-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'transactions',
+          filter: `account_id=eq.${userId}`
+        },
+        () => {
+          fetchTransactions();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(depositsChannel);
+      supabase.removeChannel(withdrawalsChannel);
+      supabase.removeChannel(transactionsChannel);
+    };
+  }, [open, userId]);
+
   const fetchTransactions = async () => {
     setLoading(true);
     
@@ -62,18 +124,36 @@ export function TransactionHistoryDialog({ open, onOpenChange, userId, userProfi
 
       if (withdrawalsError) throw withdrawalsError;
 
+      // Fetch user transactions (transfers and manual admin transactions)
+      const { data: userTransactions, error: transactionsError } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('account_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (transactionsError) throw transactionsError;
+
       // Combine and format transactions
       const allTransactions: Transaction[] = [
+        // Deposits
         ...(deposits || []).map(d => ({
           ...d,
           type: 'deposit' as const,
           description: `Deposit via ${d.method || 'Bank Transfer'}`
         })),
+        // Withdrawals  
         ...(withdrawals || []).map(w => ({
           ...w,
           type: 'withdrawal' as const,
           description: `${(w.account_details as any)?.transferType === 'international' ? 'International' : 'Local'} Transfer to ${(w.account_details as any)?.recipientName || 'Recipient'}`,
           recipient_name: (w.account_details as any)?.recipientName
+        })),
+        // User transactions (transfers and admin transactions)
+        ...(userTransactions || []).map(t => ({
+          ...t,
+          type: 'transfer' as const,
+          description: t.description,
+          recipient_name: t.recipient_name
         }))
       ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
@@ -235,9 +315,13 @@ export function TransactionHistoryDialog({ open, onOpenChange, userId, userProfi
               </TabsContent>
 
               <TabsContent value="transfer" className="space-y-3 max-h-96 overflow-y-auto">
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground">Transfer history coming soon</p>
-                </div>
+                {filterTransactions('transfer').length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground">No transfer transactions found</p>
+                  </div>
+                ) : (
+                  filterTransactions('transfer').map(renderTransaction)
+                )}
               </TabsContent>
             </>
           )}

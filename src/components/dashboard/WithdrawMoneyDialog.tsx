@@ -16,11 +16,12 @@ interface WithdrawMoneyDialogProps {
   onOpenChange: (open: boolean) => void;
   userBalance: number;
   userId: string;
+  onTransactionComplete?: () => void;
 }
 
 type TransferType = 'local' | 'international' | null;
 
-export function WithdrawMoneyDialog({ open, onOpenChange, userBalance, userId }: WithdrawMoneyDialogProps) {
+export function WithdrawMoneyDialog({ open, onOpenChange, userBalance, userId, onTransactionComplete }: WithdrawMoneyDialogProps) {
   const [step, setStep] = useState<'select' | 'form' | 'pin'>('select');
   const [transferType, setTransferType] = useState<TransferType>(null);
   const [loading, setLoading] = useState(false);
@@ -132,6 +133,11 @@ export function WithdrawMoneyDialog({ open, onOpenChange, userBalance, userId }:
         title: "Transfer Completed Successfully!",
         description: `Your ${transferType} transfer of $${formData.amount.toFixed(2)} has been completed instantly.`,
       });
+
+      // Call onTransactionComplete callback if provided
+      if (onTransactionComplete) {
+        onTransactionComplete();
+      }
 
       onOpenChange(false);
       handleReset();

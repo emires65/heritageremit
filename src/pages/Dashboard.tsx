@@ -35,6 +35,27 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Function to refresh user profile and balance
+  const refreshProfile = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const { data: profileData, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+      } else {
+        setProfile(profileData);
+      }
+    } catch (error) {
+      console.error('Error refreshing profile:', error);
+    }
+  };
+
   useEffect(() => {
     const getUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -266,6 +287,7 @@ export default function Dashboard() {
         onOpenChange={setWithdrawDialogOpen}
         userBalance={profile?.balance || 0}
         userId={user?.id || ''}
+        onTransactionComplete={refreshProfile}
       />
       
       <ReceiveMoneyDialog 
