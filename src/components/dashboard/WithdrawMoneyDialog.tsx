@@ -117,7 +117,7 @@ export function WithdrawMoneyDialog({ open, onOpenChange, userBalance, userId }:
         .from('transactions')
         .insert({
           account_id: userId, // Using userId as placeholder since we're using profiles table
-          transaction_type: 'withdrawal',
+          transaction_type: 'debit',
           amount: formData.amount,
           description: `${transferType === 'local' ? 'Local' : 'International'} transfer to ${formData.recipientName}`,
           reference_number: referenceNumber,
