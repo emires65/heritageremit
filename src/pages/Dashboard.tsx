@@ -22,6 +22,7 @@ import { ReceiveMoneyDialog } from "@/components/dashboard/ReceiveMoneyDialog";
 import { TransactionHistoryDialog } from "@/components/dashboard/TransactionHistoryDialog";
 import { ProfileDialog } from "@/components/dashboard/ProfileDialog";
 import { PinSetupDialog } from "@/components/dashboard/PinSetupDialog";
+import { SettingsDialog } from "@/components/dashboard/SettingsDialog";
 
 export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null);
@@ -31,6 +32,7 @@ export default function Dashboard() {
   const [receiveDialogOpen, setReceiveDialogOpen] = useState(false);
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [pinSetupOpen, setPinSetupOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -136,7 +138,7 @@ export default function Dashboard() {
       icon: Settings,
       title: "Settings",
       subtitle: "Manage your account preferences",
-      onClick: () => {},
+      onClick: () => setSettingsDialogOpen(true),
       variant: "secondary" as const,
     },
     {
@@ -321,6 +323,14 @@ export default function Dashboard() {
         onOpenChange={setProfileDialogOpen}
         profile={profile}
         onProfileUpdate={setProfile}
+      />
+
+      <SettingsDialog
+        open={settingsDialogOpen}
+        onOpenChange={setSettingsDialogOpen}
+        profile={profile}
+        onProfileUpdate={setProfile}
+        onLogout={handleLogout}
       />
 
       <PinSetupDialog
