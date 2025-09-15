@@ -333,12 +333,20 @@ export type Database = {
         Returns: undefined
       }
       add_manual_transaction: {
-        Args: {
-          target_user_id: string
-          transaction_amount: number
-          transaction_description: string
-          transaction_type?: string
-        }
+        Args:
+          | {
+              target_user_id: string
+              transaction_amount: number
+              transaction_date?: string
+              transaction_description: string
+              transaction_type?: string
+            }
+          | {
+              target_user_id: string
+              transaction_amount: number
+              transaction_description: string
+              transaction_type?: string
+            }
         Returns: undefined
       }
       fund_user_account: {

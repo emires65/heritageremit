@@ -178,6 +178,10 @@ export default function AdminDashboard() {
         <AdminManualTransactionDialog
           open={manualTransactionOpen}
           onOpenChange={setManualTransactionOpen}
+          onTransactionAdded={() => {
+            // Force refresh of all admin tables
+            window.location.reload();
+          }}
         />
       </main>
     </div>

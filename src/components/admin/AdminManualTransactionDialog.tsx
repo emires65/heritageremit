@@ -27,6 +27,14 @@ export function AdminManualTransactionDialog({ open, onOpenChange, onTransaction
   const [amount, setAmount] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [transactionType, setTransactionType] = useState<string>("credit");
+  const [transactionDate, setTransactionDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [transactionTime, setTransactionTime] = useState<string>(
+    new Date().toLocaleTimeString('en-GB', { 
+      hour12: false, 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    })
+  );
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -58,7 +66,7 @@ export function AdminManualTransactionDialog({ open, onOpenChange, onTransaction
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedUserId || !amount || !description) {
+    if (!selectedUserId || !amount || !description || !transactionDate || !transactionTime) {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields.",
@@ -80,11 +88,15 @@ export function AdminManualTransactionDialog({ open, onOpenChange, onTransaction
     setLoading(true);
     
     try {
+      // Combine date and time
+      const combinedDateTime = new Date(`${transactionDate}T${transactionTime}:00`).toISOString();
+      
       const { error } = await supabase.rpc('add_manual_transaction', {
         target_user_id: selectedUserId,
         transaction_amount: transactionAmount,
         transaction_description: description,
-        transaction_type: transactionType
+        transaction_type: transactionType,
+        transaction_date: combinedDateTime
       });
 
       if (error) throw error;
@@ -99,6 +111,12 @@ export function AdminManualTransactionDialog({ open, onOpenChange, onTransaction
       setAmount("");
       setDescription("");
       setTransactionType("credit");
+      setTransactionDate(new Date().toISOString().split('T')[0]);
+      setTransactionTime(new Date().toLocaleTimeString('en-GB', { 
+        hour12: false, 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      }));
       onOpenChange(false);
 
       // Optional: Call a callback to refresh admin dashboard if provided
@@ -180,12 +198,38 @@ export function AdminManualTransactionDialog({ open, onOpenChange, onTransaction
             />
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="date">Date</Label>
+              <Input
+                id="date"
+                type="date"
+                value={transactionDate}
+                onChange={(e) => setTransactionDate(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="time">Time</Label>
+              <Input
+                id="time"
+                type="time"
+                value={transactionTime}
+                onChange={(e) => setTransactionTime(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
           {selectedUser && (
             <div className="bg-muted/50 p-3 rounded-lg">
               <h4 className="font-medium mb-1">Transaction Summary</h4>
               <p className="text-sm text-muted-foreground">
                 {transactionType === 'credit' ? 'Adding' : 'Deducting'} ${amount || '0.00'} 
                 {transactionType === 'credit' ? ' to' : ' from'} {selectedUser.first_name} {selectedUser.last_name}'s account
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Date: {transactionDate} at {transactionTime}
               </p>
             </div>
           )}
