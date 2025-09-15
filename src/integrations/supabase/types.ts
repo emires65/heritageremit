@@ -357,6 +357,10 @@ export type Database = {
         Args: { new_status: string; target_user_id: string }
         Returns: undefined
       }
+      update_transaction_date: {
+        Args: { new_date: string; table_name: string; transaction_id: string }
+        Returns: undefined
+      }
       update_user_balance: {
         Args: { amount_param: number; operation: string; user_id_param: string }
         Returns: undefined

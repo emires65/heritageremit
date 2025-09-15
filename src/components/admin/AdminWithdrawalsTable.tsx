@@ -12,7 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Check, X, Search, Eye } from "lucide-react";
+import { Check, X, Search, Eye, Calendar } from "lucide-react";
+import { EditTransactionDateDialog } from "./EditTransactionDateDialog";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +43,15 @@ export function AdminWithdrawalsTable() {
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [editDateDialog, setEditDateDialog] = useState<{
+    open: boolean;
+    transactionId: string;
+    currentDate: string;
+  }>({
+    open: false,
+    transactionId: "",
+    currentDate: "",
+  });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -181,6 +191,19 @@ export function AdminWithdrawalsTable() {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setEditDateDialog({
+                        open: true,
+                        transactionId: withdrawal.id,
+                        currentDate: withdrawal.created_at,
+                      })}
+                      className="text-blue-600 hover:text-blue-700"
+                    >
+                      <Calendar className="h-4 w-4" />
+                    </Button>
+                    
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button variant="outline" size="sm">
@@ -238,6 +261,15 @@ export function AdminWithdrawalsTable() {
           No withdrawals found matching your search.
         </div>
       )}
+
+      <EditTransactionDateDialog
+        open={editDateDialog.open}
+        onOpenChange={(open) => setEditDateDialog(prev => ({ ...prev, open }))}
+        transactionId={editDateDialog.transactionId}
+        transactionType="withdrawals"
+        currentDate={editDateDialog.currentDate}
+        onDateUpdated={fetchWithdrawals}
+      />
     </div>
   );
 }

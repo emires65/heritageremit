@@ -22,6 +22,7 @@ import { AdminWithdrawalsTable } from "@/components/admin/AdminWithdrawalsTable"
 import { AdminLoanApplicationsTable } from "@/components/admin/AdminLoanApplicationsTable";
 import { AdminStatsCards } from "@/components/admin/AdminStatsCards";
 
+import { AdminTransactionsTable } from "@/components/admin/AdminTransactionsTable";
 import { AdminAccountActivationTable } from "@/components/admin/AdminAccountActivationTable";
 import { AdminManualTransactionDialog } from "@/components/admin/AdminManualTransactionDialog";
 
@@ -120,7 +121,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="activation" className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="grid w-full grid-cols-6">
                 <TabsTrigger value="activation" className="flex items-center space-x-2">
                   <UserCheck className="h-4 w-4" />
                   <span>Activation</span>
@@ -128,6 +129,10 @@ export default function AdminDashboard() {
                 <TabsTrigger value="users" className="flex items-center space-x-2">
                   <Users className="h-4 w-4" />
                   <span>Users</span>
+                </TabsTrigger>
+                <TabsTrigger value="transactions" className="flex items-center space-x-2">
+                  <FileText className="h-4 w-4" />
+                  <span>Transactions</span>
                 </TabsTrigger>
                 <TabsTrigger value="deposits" className="flex items-center space-x-2">
                   <TrendingUp className="h-4 w-4" />
@@ -149,6 +154,10 @@ export default function AdminDashboard() {
 
               <TabsContent value="users" className="mt-6">
                 <AdminUsersTable />
+              </TabsContent>
+
+              <TabsContent value="transactions" className="mt-6">
+                <AdminTransactionsTable />
               </TabsContent>
 
               <TabsContent value="deposits" className="mt-6">

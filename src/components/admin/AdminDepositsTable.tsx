@@ -12,7 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Check, X, Search } from "lucide-react";
+import { Check, X, Search, Calendar } from "lucide-react";
+import { EditTransactionDateDialog } from "./EditTransactionDateDialog";
 
 interface Deposit {
   id: string;
@@ -33,6 +34,15 @@ export function AdminDepositsTable() {
   const [deposits, setDeposits] = useState<Deposit[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [editDateDialog, setEditDateDialog] = useState<{
+    open: boolean;
+    transactionId: string;
+    currentDate: string;
+  }>({
+    open: false,
+    transactionId: "",
+    currentDate: "",
+  });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -180,26 +190,41 @@ export function AdminDepositsTable() {
                   {new Date(deposit.created_at).toLocaleDateString()}
                 </TableCell>
                 <TableCell>
-                  {deposit.status === 'pending' && (
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => updateDepositStatus(deposit.id, 'approved', deposit.amount, deposit.user_id)}
-                        className="text-green-600 hover:text-green-700"
-                      >
-                        <Check className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => updateDepositStatus(deposit.id, 'rejected')}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setEditDateDialog({
+                        open: true,
+                        transactionId: deposit.id,
+                        currentDate: deposit.created_at,
+                      })}
+                      className="text-blue-600 hover:text-blue-700"
+                    >
+                      <Calendar className="h-4 w-4" />
+                    </Button>
+                    
+                    {deposit.status === 'pending' && (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => updateDepositStatus(deposit.id, 'approved', deposit.amount, deposit.user_id)}
+                          className="text-green-600 hover:text-green-700"
+                        >
+                          <Check className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => updateDepositStatus(deposit.id, 'rejected')}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -212,6 +237,15 @@ export function AdminDepositsTable() {
           No deposits found matching your search.
         </div>
       )}
+
+      <EditTransactionDateDialog
+        open={editDateDialog.open}
+        onOpenChange={(open) => setEditDateDialog(prev => ({ ...prev, open }))}
+        transactionId={editDateDialog.transactionId}
+        transactionType="deposits"
+        currentDate={editDateDialog.currentDate}
+        onDateUpdated={fetchDeposits}
+      />
     </div>
   );
 }
