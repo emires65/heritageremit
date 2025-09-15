@@ -42,10 +42,26 @@ export default function AdminDashboard() {
     
     try {
       const sessionData = JSON.parse(adminSession);
+      
+      // Check if session is authenticated and not expired
       if (!sessionData.authenticated) {
+        localStorage.removeItem('admin_session');
         navigate('/admin/auth');
         return;
       }
+      
+      // Check if session has expired (if expires field exists)
+      if (sessionData.expires && Date.now() > sessionData.expires) {
+        localStorage.removeItem('admin_session');
+        toast({
+          title: "Session Expired",
+          description: "Your admin session has expired. Please login again.",
+          variant: "destructive",
+        });
+        navigate('/admin/auth');
+        return;
+      }
+      
     } catch (error) {
       // If parsing fails, assume old format or invalid session
       localStorage.removeItem('admin_session');
@@ -54,7 +70,7 @@ export default function AdminDashboard() {
     }
     
     setLoading(false);
-  }, [navigate]);
+  }, [navigate, toast]);
 
   const handleLogout = () => {
     localStorage.removeItem('admin_session');

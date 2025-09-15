@@ -34,12 +34,13 @@ export default function AdminAuth() {
       }
 
       if (data && data.length > 0 && data[0].authenticated) {
-        // Store admin session in localStorage with admin ID
+        // Store admin session in localStorage with admin ID and 24-hour expiration
         localStorage.setItem('admin_session', JSON.stringify({
           authenticated: true,
           admin_id: data[0].admin_id,
           username: data[0].username,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          expires: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
         }));
         
         toast({
