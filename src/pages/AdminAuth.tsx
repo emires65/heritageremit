@@ -6,9 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ArrowLeft, Eye, EyeOff, Shield } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-
-const ADMIN_EMAIL = "piofficialreception";
-const ADMIN_PASSWORD = "65657667";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function AdminAuth() {
   const navigate = useNavigate();
@@ -20,22 +18,47 @@ export default function AdminAuth() {
     e.preventDefault();
     setIsLoading(true);
     
-    const formData = new FormData(e.target as HTMLFormElement);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
+    try {
+      const formData = new FormData(e.target as HTMLFormElement);
+      const username = formData.get('email') as string;
+      const password = formData.get('password') as string;
 
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      // Store admin session in localStorage
-      localStorage.setItem('admin_session', 'true');
-      toast({
-        title: "Admin Access Granted",
-        description: "Welcome to the admin panel.",
+      // Use the secure authentication function
+      const { data, error } = await supabase.rpc('authenticate_admin', {
+        username_param: username,
+        password_param: password
       });
-      navigate('/admin');
-    } else {
+
+      if (error) {
+        throw error;
+      }
+
+      if (data && data.length > 0 && data[0].authenticated) {
+        // Store admin session in localStorage with admin ID
+        localStorage.setItem('admin_session', JSON.stringify({
+          authenticated: true,
+          admin_id: data[0].admin_id,
+          username: data[0].username,
+          timestamp: Date.now()
+        }));
+        
+        toast({
+          title: "Admin Access Granted",
+          description: `Welcome to the admin panel, ${data[0].username}.`,
+        });
+        navigate('/admin');
+      } else {
+        toast({
+          title: "Access Denied",
+          description: "Invalid admin credentials.",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      console.error('Admin authentication error:', error);
       toast({
-        title: "Access Denied",
-        description: "Invalid admin credentials.",
+        title: "Authentication Error",
+        description: "Failed to authenticate. Please try again.",
         variant: "destructive",
       });
     }
@@ -73,12 +96,12 @@ export default function AdminAuth() {
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="admin-email">Admin Email</Label>
+                <Label htmlFor="admin-email">Admin Username</Label>
                 <Input
                   id="admin-email"
                   name="email"
                   type="text"
-                  placeholder="Enter admin email"
+                  placeholder="Enter admin username"
                   required
                 />
               </div>

@@ -39,6 +39,20 @@ export default function AdminDashboard() {
       navigate('/admin/auth');
       return;
     }
+    
+    try {
+      const sessionData = JSON.parse(adminSession);
+      if (!sessionData.authenticated) {
+        navigate('/admin/auth');
+        return;
+      }
+    } catch (error) {
+      // If parsing fails, assume old format or invalid session
+      localStorage.removeItem('admin_session');
+      navigate('/admin/auth');
+      return;
+    }
+    
     setLoading(false);
   }, [navigate]);
 

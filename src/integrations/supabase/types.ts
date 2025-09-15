@@ -349,6 +349,14 @@ export type Database = {
             }
         Returns: undefined
       }
+      authenticate_admin: {
+        Args: { password_param: string; username_param: string }
+        Returns: {
+          admin_id: string
+          authenticated: boolean
+          username: string
+        }[]
+      }
       fund_user_account: {
         Args: { amount: number; target_user_id: string }
         Returns: undefined
@@ -360,6 +368,10 @@ export type Database = {
       generate_reference_number: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      is_current_user_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       toggle_user_status: {
         Args: { new_status: string; target_user_id: string }
