@@ -172,11 +172,24 @@ export default function Dashboard() {
           </div>
           
           <div className="flex items-center space-x-4">
-            <div className="text-right">
-              <p className="text-white font-medium">
-                {profile?.first_name} {profile?.last_name}
-              </p>
-              <p className="text-white/70 text-sm">Account Holder</p>
+            <div className="flex items-center space-x-3">
+              {profile?.profile_image_url ? (
+                <img
+                  src={profile.profile_image_url}
+                  alt={`${profile.first_name} ${profile.last_name}`}
+                  className="w-10 h-10 rounded-full object-cover border-2 border-white/20"
+                />
+              ) : (
+                <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
+                  <UserIcon className="h-5 w-5 text-white" />
+                </div>
+              )}
+              <div className="text-right">
+                <p className="text-white font-medium">
+                  {profile?.first_name} {profile?.last_name}
+                </p>
+                <p className="text-white/70 text-sm">Account Holder</p>
+              </div>
             </div>
             <Button
               variant="outline"

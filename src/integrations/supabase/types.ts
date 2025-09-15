@@ -198,6 +198,7 @@ export type Database = {
           last_name: string | null
           phone: string | null
           pin_hash: string | null
+          profile_image_url: string | null
           role: string | null
           status: string
           updated_at: string
@@ -215,6 +216,7 @@ export type Database = {
           last_name?: string | null
           phone?: string | null
           pin_hash?: string | null
+          profile_image_url?: string | null
           role?: string | null
           status?: string
           updated_at?: string
@@ -232,6 +234,7 @@ export type Database = {
           last_name?: string | null
           phone?: string | null
           pin_hash?: string | null
+          profile_image_url?: string | null
           role?: string | null
           status?: string
           updated_at?: string

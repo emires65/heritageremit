@@ -32,14 +32,25 @@ export function PinVerification({ userId, onVerified, onCancel, loading }: PinVe
     setVerifying(true);
 
     try {
-      // Get user's stored PIN hash
+      // Get user's profile with PIN hash and status
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('pin_hash')
+        .select('pin_hash, status')
         .eq('user_id', userId)
         .single();
 
       if (error) throw error;
+
+      // Check if user is blocked FIRST
+      if ((profile as any)?.status === 'blocked') {
+        toast({
+          title: "Account Blocked",
+          description: "This account has been blocked by cyber security reasons. This payment will be on hold. Kindly contact the customer support service or support@heritageremit.site to complete this payment and unrestrict your account.",
+          variant: "destructive",
+        });
+        onCancel();
+        return;
+      }
 
       // Verify PIN (in a real app, this should be done server-side with proper hashing)
       const hashedInput = btoa(pin);

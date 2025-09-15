@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Eye, EyeOff, Shield, Lock } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Shield, Lock, Upload, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +17,8 @@ export default function Auth() {
   const defaultTab = searchParams.get('mode') === 'signup' ? 'signup' : 'login';
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,6 +99,66 @@ export default function Auth() {
     }
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Check file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        toast({
+          title: "File Too Large",
+          description: "Please select an image under 2MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid File Type",
+          description: "Please select an image file.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setProfileImage(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadProfileImage = async (userId: string): Promise<string | null> => {
+    if (!profileImage) return null;
+
+    try {
+      const fileExt = profileImage.name.split('.').pop();
+      const fileName = `${userId}/profile.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('profile-images')
+        .upload(fileName, profileImage, {
+          upsert: true
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('profile-images')
+        .getPublicUrl(fileName);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading profile image:', error);
+      return null;
+    }
+  };
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -132,6 +194,9 @@ export default function Auth() {
       }
 
       if (data.user) {
+        // Upload profile image if provided
+        const profileImageUrl = await uploadProfileImage(data.user.id);
+
         // Create user profile with inactive status
         const { error: profileError } = await supabase
           .from('profiles')
@@ -141,7 +206,8 @@ export default function Auth() {
             last_name: lastName,
             phone: phone,
             role: 'user',
-            account_status: 'inactive'
+            account_status: 'inactive',
+            profile_image_url: profileImageUrl
           });
 
         if (profileError) {
@@ -307,6 +373,37 @@ export default function Auth() {
                       placeholder="+1 (555) 123-4567"
                       required
                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="profile-image">Profile Photo</Label>
+                    <div className="flex items-center space-x-4">
+                      <div className="flex-shrink-0">
+                        {imagePreview ? (
+                          <img
+                            src={imagePreview}
+                            alt="Profile preview"
+                            className="w-16 h-16 rounded-full object-cover border-2 border-border"
+                          />
+                        ) : (
+                          <div className="w-16 h-16 rounded-full bg-muted border-2 border-dashed border-border flex items-center justify-center">
+                            <User className="h-6 w-6 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <Input
+                          id="profile-image"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="cursor-pointer"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Upload a clear photo of yourself (max 2MB)
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
