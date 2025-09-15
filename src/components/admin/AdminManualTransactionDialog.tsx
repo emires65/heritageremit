@@ -27,8 +27,8 @@ export function AdminManualTransactionDialog({ open, onOpenChange, onTransaction
   const [amount, setAmount] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [transactionType, setTransactionType] = useState<string>("credit");
-  const [transactionDate, setTransactionDate] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [transactionTime, setTransactionTime] = useState<string>(
+  const [transactionDate, setTransactionDate] = useState(new Date().toISOString().split('T')[0]);
+  const [transactionTime, setTransactionTime] = useState(
     new Date().toLocaleTimeString('en-GB', { 
       hour12: false, 
       hour: '2-digit', 
@@ -188,7 +188,7 @@ export function AdminManualTransactionDialog({ open, onOpenChange, onTransaction
           </div>
 
           <div>
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">Description/Narration</Label>
             <Textarea
               id="description"
               value={description}
@@ -228,8 +228,8 @@ export function AdminManualTransactionDialog({ open, onOpenChange, onTransaction
                 {transactionType === 'credit' ? 'Adding' : 'Deducting'} ${amount || '0.00'} 
                 {transactionType === 'credit' ? ' to' : ' from'} {selectedUser.first_name} {selectedUser.last_name}'s account
               </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Date: {transactionDate} at {transactionTime}
+              <p className="text-sm text-muted-foreground">
+                Date: {new Date(`${transactionDate}T${transactionTime}`).toLocaleString()}
               </p>
             </div>
           )}
