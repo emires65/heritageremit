@@ -151,30 +151,30 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="activation" className="w-full">
-              <TabsList className="grid w-full grid-cols-6">
-                <TabsTrigger value="activation" className="flex items-center space-x-2">
-                  <UserCheck className="h-4 w-4" />
-                  <span>Activation</span>
+              <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 gap-1">
+                <TabsTrigger value="activation" className="flex items-center justify-center space-x-1 text-xs md:text-sm px-2 py-2">
+                  <UserCheck className="h-3 w-3 md:h-4 md:w-4" />
+                  <span className="hidden sm:inline">Activation</span>
                 </TabsTrigger>
-                <TabsTrigger value="users" className="flex items-center space-x-2">
-                  <Users className="h-4 w-4" />
-                  <span>Users</span>
+                <TabsTrigger value="users" className="flex items-center justify-center space-x-1 text-xs md:text-sm px-2 py-2">
+                  <Users className="h-3 w-3 md:h-4 md:w-4" />
+                  <span className="hidden sm:inline">Users</span>
                 </TabsTrigger>
-                <TabsTrigger value="transactions" className="flex items-center space-x-2">
-                  <FileText className="h-4 w-4" />
-                  <span>Transactions</span>
+                <TabsTrigger value="transactions" className="flex items-center justify-center space-x-1 text-xs md:text-sm px-2 py-2">
+                  <FileText className="h-3 w-3 md:h-4 md:w-4" />
+                  <span className="hidden sm:inline">Transactions</span>
                 </TabsTrigger>
-                <TabsTrigger value="deposits" className="flex items-center space-x-2">
-                  <TrendingUp className="h-4 w-4" />
-                  <span>Deposits</span>
+                <TabsTrigger value="deposits" className="flex items-center justify-center space-x-1 text-xs md:text-sm px-2 py-2">
+                  <TrendingUp className="h-3 w-3 md:h-4 md:w-4" />
+                  <span className="hidden sm:inline">Deposits</span>
                 </TabsTrigger>
-                <TabsTrigger value="withdrawals" className="flex items-center space-x-2">
-                  <CreditCard className="h-4 w-4" />
-                  <span>Withdrawals</span>
+                <TabsTrigger value="withdrawals" className="flex items-center justify-center space-x-1 text-xs md:text-sm px-2 py-2">
+                  <CreditCard className="h-3 w-3 md:h-4 md:w-4" />
+                  <span className="hidden sm:inline">Withdrawals</span>
                 </TabsTrigger>
-                <TabsTrigger value="loans" className="flex items-center space-x-2">
-                  <DollarSign className="h-4 w-4" />
-                  <span>Loans</span>
+                <TabsTrigger value="loans" className="flex items-center justify-center space-x-1 text-xs md:text-sm px-2 py-2">
+                  <DollarSign className="h-3 w-3 md:h-4 md:w-4" />
+                  <span className="hidden sm:inline">Loans</span>
                 </TabsTrigger>
               </TabsList>
 

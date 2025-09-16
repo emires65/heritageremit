@@ -39,12 +39,18 @@ export function AdminUsersTable() {
 
   const fetchProfiles = async () => {
     try {
+      console.log('Fetching profiles...'); // Debug log
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error); // Debug log
+        throw error;
+      }
+      
+      console.log('Profiles fetched:', data?.length || 0); // Debug log
       setProfiles(data || []);
     } catch (error) {
       console.error('Error fetching profiles:', error);
@@ -301,9 +307,9 @@ export function AdminUsersTable() {
         </div>
       </div>
 
-      {filteredProfiles.length === 0 && (
+      {filteredProfiles.length === 0 && !loading && (
         <div className="text-center py-8 text-muted-foreground">
-          No users found matching your search.
+          {profiles.length === 0 ? 'No users found in the database.' : 'No users found matching your search.'}
         </div>
       )}
     </div>
