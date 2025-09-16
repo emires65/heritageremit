@@ -39,7 +39,7 @@ export function AdminUsersTable() {
 
   const fetchProfiles = async () => {
     try {
-      console.log('Fetching profiles...'); // Debug log
+      console.log('Fetching ALL profiles...'); // Debug log
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -50,7 +50,7 @@ export function AdminUsersTable() {
         throw error;
       }
       
-      console.log('Profiles fetched:', data?.length || 0); // Debug log
+      console.log('All profiles fetched:', data?.length || 0, 'profiles'); // Debug log
       setProfiles(data || []);
     } catch (error) {
       console.error('Error fetching profiles:', error);
