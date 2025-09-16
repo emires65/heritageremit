@@ -352,6 +352,22 @@ export type Database = {
             }
         Returns: undefined
       }
+      admin_get_all_profiles: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          account_number: string
+          account_status: string
+          balance: number
+          created_at: string
+          first_name: string
+          id: string
+          last_name: string
+          phone: string
+          role: string
+          status: string
+          user_id: string
+        }[]
+      }
       authenticate_admin: {
         Args: { password_param: string; username_param: string }
         Returns: {

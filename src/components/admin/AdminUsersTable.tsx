@@ -41,9 +41,7 @@ export function AdminUsersTable() {
     try {
       console.log('Fetching ALL profiles...'); // Debug log
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .rpc('admin_get_all_profiles');
 
       if (error) {
         console.error('Supabase error:', error); // Debug log
