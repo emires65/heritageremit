@@ -34,20 +34,34 @@ export default function AdminAuth() {
       }
 
       if (data && data.length > 0 && data[0].authenticated) {
+        // Clear any existing admin cache/session data first
+        localStorage.removeItem('admin_session');
+        localStorage.removeItem('admin_users_cache');
+        sessionStorage.clear();
+        
+        // Generate unique session key for this login
+        const loginSessionKey = `${data[0].username}-${Date.now()}`;
+        
         // Store admin session in localStorage with admin ID and 24-hour expiration
         localStorage.setItem('admin_session', JSON.stringify({
           authenticated: true,
           admin_id: data[0].admin_id,
           username: data[0].username,
           timestamp: Date.now(),
-          expires: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+          expires: Date.now() + (24 * 60 * 60 * 1000), // 24 hours
+          sessionKey: loginSessionKey,
+          forceRefresh: true
         }));
+        
+        console.log('Admin login successful, session key:', loginSessionKey);
         
         toast({
           title: "Admin Access Granted",
           description: `Welcome to the admin panel, ${data[0].username}.`,
         });
-        navigate('/admin');
+        
+        // Force complete page refresh to ensure clean state
+        window.location.href = '/admin';
       } else {
         toast({
           title: "Access Denied",

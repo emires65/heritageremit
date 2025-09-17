@@ -16,7 +16,7 @@ import {
   UserCheck,
   FileText
 } from "lucide-react";
-import { AdminUsersTable } from "@/components/admin/AdminUsersTable";
+import { AdminUsersTableV2 } from "@/components/admin/AdminUsersTableV2";
 import { AdminDepositsTable } from "@/components/admin/AdminDepositsTable";
 import { AdminWithdrawalsTable } from "@/components/admin/AdminWithdrawalsTable";
 import { AdminLoanApplicationsTable } from "@/components/admin/AdminLoanApplicationsTable";
@@ -31,21 +31,26 @@ export default function AdminDashboard() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [manualTransactionOpen, setManualTransactionOpen] = useState(false);
-  const [adminSessionKey, setAdminSessionKey] = useState<string>(Date.now().toString());
+  const [refreshTrigger, setRefreshTrigger] = useState<string>('');
 
   useEffect(() => {
+    console.log('AdminDashboard: Checking admin session...');
+    
     // Check if admin is logged in
     const adminSession = localStorage.getItem('admin_session');
     if (!adminSession) {
+      console.log('No admin session found, redirecting to auth');
       navigate('/admin/auth');
       return;
     }
     
     try {
       const sessionData = JSON.parse(adminSession);
+      console.log('Admin session data:', sessionData);
       
       // Check if session is authenticated and not expired
       if (!sessionData.authenticated) {
+        console.log('Admin session not authenticated');
         localStorage.removeItem('admin_session');
         navigate('/admin/auth');
         return;
@@ -53,6 +58,7 @@ export default function AdminDashboard() {
       
       // Check if session has expired (if expires field exists)
       if (sessionData.expires && Date.now() > sessionData.expires) {
+        console.log('Admin session expired');
         localStorage.removeItem('admin_session');
         toast({
           title: "Session Expired",
@@ -63,12 +69,13 @@ export default function AdminDashboard() {
         return;
       }
       
-      // Generate new session key to force refresh of all admin components
-      const newSessionKey = `${sessionData.username}-${Date.now()}`;
-      console.log('Admin dashboard loaded with session key:', newSessionKey);
-      setAdminSessionKey(newSessionKey);
+      // Generate refresh trigger from session data
+      const trigger = `${sessionData.sessionKey || sessionData.username}-${sessionData.timestamp || Date.now()}`;
+      console.log('Setting refresh trigger:', trigger);
+      setRefreshTrigger(trigger);
       
     } catch (error) {
+      console.error('Error parsing admin session:', error);
       // If parsing fails, assume old format or invalid session
       localStorage.removeItem('admin_session');
       navigate('/admin/auth');
@@ -189,7 +196,7 @@ export default function AdminDashboard() {
               </TabsContent>
 
               <TabsContent value="users" className="mt-6">
-                <AdminUsersTable refreshKey={adminSessionKey} />
+                <AdminUsersTableV2 refreshTrigger={refreshTrigger} />
               </TabsContent>
 
               <TabsContent value="transactions" className="mt-6">
