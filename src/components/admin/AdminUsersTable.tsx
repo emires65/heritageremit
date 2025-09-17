@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { DollarSign, UserCheck, UserX, Search, Ban, CheckCircle } from "lucide-react";
+import { DollarSign, UserCheck, UserX, Search, Ban, CheckCircle, AlertCircle } from "lucide-react";
 
 interface Profile {
   id: string;
@@ -27,36 +27,76 @@ interface Profile {
   created_at: string;
 }
 
-export function AdminUsersTable() {
+interface AdminUsersTableProps {
+  refreshKey?: string | number;
+}
+
+export function AdminUsersTable({ refreshKey }: AdminUsersTableProps = {}) {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const { toast } = useToast();
 
+  // Force refresh when admin logs in or refreshKey changes
+  useEffect(() => {
+    console.log('AdminUsersTable: Triggering fresh fetch, refreshKey:', refreshKey);
+    fetchProfiles();
+  }, [refreshKey]);
+
+  // Also fetch on component mount
   useEffect(() => {
     fetchProfiles();
   }, []);
 
   const fetchProfiles = async () => {
+    setLoading(true);
+    setFetchError(null);
+    
     try {
-      console.log('Fetching ALL profiles...'); // Debug log
+      console.log('Fetching ALL profiles with timestamp:', Date.now()); // Debug log with timestamp
+      
+      // Call the RPC function to get all profiles (bypasses RLS)
       const { data, error } = await supabase
         .rpc('admin_get_all_profiles');
 
       if (error) {
-        console.error('Supabase error:', error); // Debug log
+        console.error('Supabase RPC error:', error); // Debug log
+        setFetchError(`Database error: ${error.message}`);
         throw error;
       }
       
-      console.log('All profiles fetched:', data?.length || 0, 'profiles'); // Debug log
+      // Ensure data is an array
+      if (!Array.isArray(data)) {
+        console.error('Invalid data format received:', data);
+        setFetchError('Invalid data format received from server');
+        throw new Error('Invalid data format');
+      }
+      
+      console.log('Successfully fetched profiles:', data?.length || 0, 'users at', new Date().toISOString()); // Debug log
       setProfiles(data || []);
+      
+      // Show success toast on successful fetch if we have users
+      if (data && data.length > 0) {
+        toast({
+          title: "Users Loaded",
+          description: `Successfully loaded ${data.length} users.`,
+        });
+      }
+      
     } catch (error) {
-      console.error('Error fetching profiles:', error);
+      console.error('Critical error fetching profiles:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setFetchError(errorMessage);
+      
       toast({
-        title: "Error",
-        description: "Failed to fetch user profiles.",
+        title: "Error Loading Users",
+        description: "Failed to fetch user profiles. Please try refreshing the page.",
         variant: "destructive",
       });
+      
+      // Set empty array to show "no users found" message
+      setProfiles([]);
     } finally {
       setLoading(false);
     }
@@ -124,15 +164,47 @@ export function AdminUsersTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center space-x-2">
-        <Search className="h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search users by name, account number, or phone..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
-        />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Search className="h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search users by name, account number, or phone..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="max-w-sm"
+          />
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            console.log('Manual refresh triggered');
+            fetchProfiles();
+          }}
+          disabled={loading}
+        >
+          {loading ? 'Loading...' : 'Refresh'}
+        </Button>
       </div>
+
+      {/* Error Display */}
+      {fetchError && !loading && (
+        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+          <div className="flex items-center space-x-2 text-destructive">
+            <AlertCircle className="h-4 w-4" />
+            <span className="font-medium">Failed to load users</span>
+          </div>
+          <p className="text-sm text-destructive/80 mt-1">{fetchError}</p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchProfiles}
+            className="mt-2"
+          >
+            Try Again
+          </Button>
+        </div>
+      )}
 
       {/* Mobile Card Layout */}
       <div className="block md:hidden space-y-4">
@@ -305,9 +377,17 @@ export function AdminUsersTable() {
         </div>
       </div>
 
-      {filteredProfiles.length === 0 && !loading && (
+      {filteredProfiles.length === 0 && !loading && !fetchError && (
         <div className="text-center py-8 text-muted-foreground">
-          {profiles.length === 0 ? 'No users found in the database.' : 'No users found matching your search.'}
+          {profiles.length === 0 ? 
+            'No users found in the database. Users will appear here after they register.' : 
+            'No users found matching your search criteria.'}
+        </div>
+      )}
+
+      {filteredProfiles.length === 0 && !loading && fetchError && (
+        <div className="text-center py-8 text-muted-foreground">
+          Unable to load users due to an error. Please check the error message above and try again.
         </div>
       )}
     </div>

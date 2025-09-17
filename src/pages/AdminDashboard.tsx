@@ -31,6 +31,7 @@ export default function AdminDashboard() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [manualTransactionOpen, setManualTransactionOpen] = useState(false);
+  const [adminSessionKey, setAdminSessionKey] = useState<string>(Date.now().toString());
 
   useEffect(() => {
     // Check if admin is logged in
@@ -61,6 +62,11 @@ export default function AdminDashboard() {
         navigate('/admin/auth');
         return;
       }
+      
+      // Generate new session key to force refresh of all admin components
+      const newSessionKey = `${sessionData.username}-${Date.now()}`;
+      console.log('Admin dashboard loaded with session key:', newSessionKey);
+      setAdminSessionKey(newSessionKey);
       
     } catch (error) {
       // If parsing fails, assume old format or invalid session
@@ -183,7 +189,7 @@ export default function AdminDashboard() {
               </TabsContent>
 
               <TabsContent value="users" className="mt-6">
-                <AdminUsersTable />
+                <AdminUsersTable refreshKey={adminSessionKey} />
               </TabsContent>
 
               <TabsContent value="transactions" className="mt-6">
