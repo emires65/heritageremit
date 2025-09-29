@@ -52,9 +52,9 @@ export const Footer = () => {
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-2 mb-6">
               <div className="w-12 h-12 bg-gradient-gold rounded-lg flex items-center justify-center">
-                <span className="text-primary font-bold text-2xl">H</span>
+                <span className="text-primary font-bold text-2xl">S</span>
               </div>
-              <span className="text-2xl font-bold text-white">Heritage Bank</span>
+              <span className="text-2xl font-bold text-white">Suganheritageremit</span>
             </div>
             <p className="text-white/80 leading-relaxed mb-6">
               Trusted for over 135 years, Heritage Bank continues to set the standard 
@@ -79,11 +79,11 @@ export const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-accent" />
-                <span className="text-white/80">+1 (815) 600-8181</span>
+                <span className="text-white/80">+1 (747) 477 5130</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-accent" />
-                <span className="text-white/80">support@heritageremit.site</span>
+                <span className="text-white/80">Suganheritageb@gmail.com</span>
               </div>
               <div className="flex items-center space-x-3">
                 <MapPin className="h-5 w-5 text-accent" />
@@ -183,7 +183,7 @@ export const Footer = () => {
           <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
             {/* Copyright */}
             <div className="text-white/80 text-sm">
-              © {currentYear} Heritage Bank. All Rights Reserved. Member FDIC. Equal Housing Lender.
+              © {currentYear} Suganheritageremit. All Rights Reserved. Member FDIC. Equal Housing Lender.
             </div>
 
             {/* Legal Links */}

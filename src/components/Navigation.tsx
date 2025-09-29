@@ -35,9 +35,9 @@ export const Navigation = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">H</span>
+              <span className="text-white font-bold text-xl">S</span>
             </div>
-            <span className="text-xl font-bold text-primary">Heritage Remit Bank</span>
+            <span className="text-xl font-bold text-primary">Suganheritageremit</span>
           </Link>
 
           {/* Desktop Navigation */}

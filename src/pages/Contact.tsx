@@ -52,14 +52,14 @@ const Contact = () => {
       icon: Phone,
       title: "Phone Support",
       description: "Speak directly with our banking specialists",
-      details: ["+1 (800) 123-BANK", "Available 24/7"],
+      details: ["+1 (747) 477 5130", "Available 24/7"],
       action: "Call Now"
     },
     {
       icon: Mail,
       title: "Email Support", 
       description: "Send us a message and we'll respond quickly",
-      details: ["support@heritageremit.site", "Response within 2 hours"],
+      details: ["Suganheritageb@gmail.com", "Response within 2 hours"],
       action: "Send Email"
     },
     {
