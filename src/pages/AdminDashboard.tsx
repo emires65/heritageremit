@@ -34,59 +34,66 @@ export default function AdminDashboard() {
   const [refreshTrigger, setRefreshTrigger] = useState<string>('');
 
   useEffect(() => {
-    console.log('AdminDashboard: Checking admin session...');
-    
-    // Check if admin is logged in
-    const adminSession = localStorage.getItem('admin_session');
-    if (!adminSession) {
-      console.log('No admin session found, redirecting to auth');
-      navigate('/admin/auth');
-      return;
-    }
-    
-    try {
-      const sessionData = JSON.parse(adminSession);
-      console.log('Admin session data:', sessionData);
-      
-      // Check if session is authenticated and not expired
-      if (!sessionData.authenticated) {
-        console.log('Admin session not authenticated');
-        localStorage.removeItem('admin_session');
-        navigate('/admin/auth');
-        return;
-      }
-      
-      // Check if session has expired (if expires field exists)
-      if (sessionData.expires && Date.now() > sessionData.expires) {
-        console.log('Admin session expired');
-        localStorage.removeItem('admin_session');
-        toast({
-          title: "Session Expired",
-          description: "Your admin session has expired. Please login again.",
-          variant: "destructive",
+    const checkAdminAuth = async () => {
+      try {
+        // Check if user is authenticated with Supabase
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session?.user) {
+          navigate('/admin/auth');
+          return;
+        }
+
+        // Check if user has admin role
+        const { data: hasAdmin, error } = await supabase.rpc('has_role', {
+          _user_id: session.user.id,
+          _role: 'admin'
         });
+
+        if (error) {
+          console.error('Error checking admin role:', error);
+          toast({
+            title: "Authentication Error",
+            description: "Failed to verify admin privileges.",
+            variant: "destructive",
+          });
+          navigate('/admin/auth');
+          return;
+        }
+
+        if (!hasAdmin) {
+          toast({
+            title: "Access Denied",
+            description: "You don't have admin privileges.",
+            variant: "destructive",
+          });
+          navigate('/');
+          return;
+        }
+
+        // Set refresh trigger
+        setRefreshTrigger(`${session.user.id}-${Date.now()}`);
+        setLoading(false);
+      } catch (error) {
+        console.error('Auth check error:', error);
         navigate('/admin/auth');
-        return;
       }
-      
-      // Generate refresh trigger from session data
-      const trigger = `${sessionData.sessionKey || sessionData.username}-${sessionData.timestamp || Date.now()}`;
-      console.log('Setting refresh trigger:', trigger);
-      setRefreshTrigger(trigger);
-      
-    } catch (error) {
-      console.error('Error parsing admin session:', error);
-      // If parsing fails, assume old format or invalid session
-      localStorage.removeItem('admin_session');
-      navigate('/admin/auth');
-      return;
-    }
-    
-    setLoading(false);
+    };
+
+    checkAdminAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        navigate('/admin/auth');
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, [navigate, toast]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('admin_session');
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     toast({
       title: "Logged Out",
       description: "Admin session ended.",

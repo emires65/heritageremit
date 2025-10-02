@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,66 +14,72 @@ export default function AdminAuth() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    // Check if user is already logged in and has admin role
+    const checkAdminStatus = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data: hasAdmin } = await supabase.rpc('has_role', {
+          _user_id: session.user.id,
+          _role: 'admin'
+        });
+        
+        if (hasAdmin) {
+          navigate('/admin');
+        }
+      }
+    };
+    
+    checkAdminStatus();
+  }, [navigate]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
     try {
       const formData = new FormData(e.target as HTMLFormElement);
-      const username = formData.get('email') as string;
+      const email = formData.get('email') as string;
       const password = formData.get('password') as string;
 
-      // Use the secure authentication function
-      const { data, error } = await supabase.rpc('authenticate_admin', {
-        username_param: username,
-        password_param: password
+      // Sign in with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      if (error) {
-        throw error;
-      }
+      if (authError) throw authError;
 
-      if (data && data.length > 0 && data[0].authenticated) {
-        // Clear any existing admin cache/session data first
-        localStorage.removeItem('admin_session');
-        localStorage.removeItem('admin_users_cache');
-        sessionStorage.clear();
-        
-        // Generate unique session key for this login
-        const loginSessionKey = `${data[0].username}-${Date.now()}`;
-        
-        // Store admin session in localStorage with admin ID and 24-hour expiration
-        localStorage.setItem('admin_session', JSON.stringify({
-          authenticated: true,
-          admin_id: data[0].admin_id,
-          username: data[0].username,
-          timestamp: Date.now(),
-          expires: Date.now() + (24 * 60 * 60 * 1000), // 24 hours
-          sessionKey: loginSessionKey,
-          forceRefresh: true
-        }));
-        
-        console.log('Admin login successful, session key:', loginSessionKey);
-        
-        toast({
-          title: "Admin Access Granted",
-          description: `Welcome to the admin panel, ${data[0].username}.`,
+      if (authData.user) {
+        // Check if user has admin role
+        const { data: hasAdmin, error: roleError } = await supabase.rpc('has_role', {
+          _user_id: authData.user.id,
+          _role: 'admin'
         });
-        
-        // Force complete page refresh to ensure clean state
-        window.location.href = '/admin';
-      } else {
-        toast({
-          title: "Access Denied",
-          description: "Invalid admin credentials.",
-          variant: "destructive",
-        });
+
+        if (roleError) throw roleError;
+
+        if (hasAdmin) {
+          toast({
+            title: "Admin Access Granted",
+            description: "Welcome to the admin panel.",
+          });
+          navigate('/admin');
+        } else {
+          // User doesn't have admin role
+          await supabase.auth.signOut();
+          toast({
+            title: "Access Denied",
+            description: "You don't have admin privileges.",
+            variant: "destructive",
+          });
+        }
       }
     } catch (error: any) {
       console.error('Admin authentication error:', error);
       toast({
         title: "Authentication Error",
-        description: "Failed to authenticate. Please try again.",
+        description: error.message || "Failed to authenticate. Please try again.",
         variant: "destructive",
       });
     }
@@ -111,12 +117,12 @@ export default function AdminAuth() {
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="admin-email">Admin Username</Label>
+                <Label htmlFor="admin-email">Admin Email</Label>
                 <Input
                   id="admin-email"
                   name="email"
-                  type="text"
-                  placeholder="Enter admin username"
+                  type="email"
+                  placeholder="Enter admin email"
                   required
                 />
               </div>
